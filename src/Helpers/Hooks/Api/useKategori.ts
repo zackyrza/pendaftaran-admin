@@ -1,65 +1,62 @@
 import { API_URL } from "Config";
-import { ICabor, ICaborPost } from "Helpers/Interface/Cabor";
+import { IKategori, IKategoriPost } from "Helpers/Interface/Kategori";
 import axios from "axios";
 import { useContext, useState } from "react";
-import { CaborContext } from "../Context/cabor";
+import { KategoriContext } from "../Context/kategori";
 
-export function useCabor() {
-    const [cabor, setCabor] = useState<ICabor[]>([]);
-    const [caborDetail, setCaborDetail] = useState<ICabor>({
+export function useKategori() {
+    const [kategori, setKategori] = useState<IKategori[]>([]);
+    const [kategoriDetail, setKategoriDetail] = useState<IKategori>({
         id: 0,
         name: '',
-        imageUrl: '',
-        noteUrl: '',
+        sportId: 0,
         deletedAt: null,
         createdAt: new Date(),
         updatedAt: new Date(),
     });
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
-    const caborContext = useContext(CaborContext);
+    const kategoriContext = useContext(KategoriContext);
 
-    const getCabor = async () => {
+    const getKategori = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(API_URL + '/sports');
+            const response = await axios.get(API_URL + '/classes');
             setLoading(false);
-            caborContext.setCabor(response.data.data);
-            setCabor(response.data.data);
+            kategoriContext.setKategori(response.data.data);
+            setKategori(response.data.data);
             return response.data.data;
         } catch (error: any) {
             setLoading(false);
-            caborContext.setCabor([]);
-            setCabor([]);
+            kategoriContext.setKategori([]);
+            setKategori([]);
             setErrorMessage(error.response.data.message);
             throw error.response.data;
         }
     }
 
-    const getCaborById = async (id: number) => {
+    const getKategoriById = async (id: number) => {
         setLoading(true);
         try {
-            const response = await axios.get(API_URL + '/sports/' + id);
+            const response = await axios.get(API_URL + '/classes/' + id);
             setLoading(false);
-            caborContext.setCaborDetail(response.data.data);
-            setCaborDetail(response.data.data);
+            kategoriContext.setKategoriDetail(response.data.data);
+            setKategoriDetail(response.data.data);
             return response.data.data;
         } catch (error: any) {
             setLoading(false);
-            caborContext.setCaborDetail({
+            kategoriContext.setKategoriDetail({
                 id: 0,
                 name: '',
-                imageUrl: '',
-                noteUrl: '',
+                sportId: 0,
                 deletedAt: null,
                 createdAt: new Date(),
                 updatedAt: new Date(),
             });
-            setCaborDetail({
+            setKategoriDetail({
                 id: 0,
                 name: '',
-                imageUrl: '',
-                noteUrl: '',
+                sportId: 0,
                 deletedAt: null,
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -69,12 +66,29 @@ export function useCabor() {
         }
     };
 
-    const createCabor = async (data: ICaborPost) => {
+    const getKategoriBySportId = async (id: number) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(API_URL + '/classes/sport/' + id);
+            setLoading(false);
+            kategoriContext.setKategori(response.data.data);
+            setKategori(response.data.data);
+            return response.data.data;
+        } catch (error: any) {
+            setLoading(false);
+            kategoriContext.setKategori([]);
+            setKategori([]);
+            setErrorMessage(error.response.data.message);
+            throw error.response.data;
+        }
+    };
+
+    const createKategori = async (data: IKategoriPost) => {
         setLoading(true);
         try {
             const response = await axios({
                 method: 'POST',
-                url: API_URL + '/sports',
+                url: API_URL + '/classes',
                 data,
                 headers: {
                     'Content-Type': 'application/json',
@@ -90,12 +104,12 @@ export function useCabor() {
         }
     };
 
-    const updateCabor = async (id: number, data: ICaborPost) => {
+    const updateKategori = async (id: number, data: IKategoriPost) => {
         setLoading(true);
         try {
             const response = await axios({
                 method: 'PUT',
-                url: API_URL + '/sports/' + id,
+                url: API_URL + '/classes/' + id,
                 data,
                 headers: {
                     'Content-Type': 'application/json',
@@ -111,12 +125,12 @@ export function useCabor() {
         }
     };
 
-    const deleteCabor = async (id: number) => {
+    const deleteKategori = async (id: number) => {
         setLoading(true);
         try {
             const response = await axios({
                 method: 'DELETE',
-                url: API_URL + '/sports/' + id,
+                url: API_URL + '/classes/' + id,
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
                 },
@@ -131,14 +145,15 @@ export function useCabor() {
     };
 
     return {
-        cabor,
-        caborDetail,
+        kategori,
+        kategoriDetail,
         errorMessage,
-        getCabor,
-        getCaborById,
-        createCabor,
-        updateCabor,
-        deleteCabor,
+        getKategori,
+        getKategoriById,
+        getKategoriBySportId,
+        createKategori,
+        updateKategori,
+        deleteKategori,
         loading,
     }
 }

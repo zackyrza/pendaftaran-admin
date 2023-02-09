@@ -7,7 +7,7 @@ import { LooseObject } from "Helpers/Interface/LooseObject";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCabor } from "Helpers/Hooks/Api/useCabor";
 import { CaborProvider } from "Helpers/Hooks/Context/cabor";
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import { LoadingOutlined, PlusOutlined, ReadOutlined } from "@ant-design/icons";
 import { API_URL, IMAGE_URL } from "Config";
 import {
   RcFile,
@@ -24,6 +24,7 @@ function CaborForm({}: ICaborFormProps) {
   const [form] = Form.useForm();
 
   const [imageUrl, setImageUrl] = React.useState<string>("");
+  const [noteUrl, setNoteUrl] = React.useState<string>("");
   const [loadingUpload, setLoading] = React.useState<boolean>(false);
   const { loading, createCabor, updateCabor, getCaborById } = useCabor();
 
@@ -41,13 +42,15 @@ function CaborForm({}: ICaborFormProps) {
 
   const onFinish = (values: LooseObject) => {
     if (isCreate) {
-      createCabor({ name: values.name, imageUrl })
+      createCabor({ name: values.name, imageUrl, noteUrl })
         .then((res) => {
           messageApi.open({
             type: "success",
             content: "Cabang olahraga berhasil dibuat!",
           });
-          navigate(-1);
+          setTimeout(() => {
+            navigate(-1);
+          }, 2000);
         })
         .catch((err) => {
           messageApi.open({
@@ -61,13 +64,16 @@ function CaborForm({}: ICaborFormProps) {
     updateCabor(Number(location.pathname.split("/")[2]), {
       name: values.name,
       imageUrl,
+      noteUrl,
     })
       .then((res) => {
         messageApi.open({
           type: "success",
           content: "Cabang olahraga berhasil diubah!",
         });
-        navigate(-1);
+        setTimeout(() => {
+          navigate(-1);
+        }, 2000);
       })
       .catch((err) => {
         messageApi.open({
@@ -89,6 +95,7 @@ function CaborForm({}: ICaborFormProps) {
           name: res.name,
         });
         setImageUrl(res.imageUrl);
+        setNoteUrl(res.noteUrl);
       });
     }
   }, [isCreate]);
@@ -103,7 +110,7 @@ function CaborForm({}: ICaborFormProps) {
   const beforeUpload = (file: RcFile) => {
     const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
     if (!isJpgOrPng) {
-      message.error("You can only upload JPG/PNG file!");
+      message.error("File yang bisa dipakai hanyalah file JPG atau PNG!");
     }
     const isLt10M = file.size / 1024 / 1024 < 10;
     if (!isLt10M) {
@@ -123,7 +130,36 @@ function CaborForm({}: ICaborFormProps) {
       // Get this url from response in real world.
       setLoading(false);
       setImageUrl(info.file.response.data);
-      console.log(info.file.response);
+    }
+  };
+
+  const beforeUploadPdf = (file: RcFile) => {
+    const isDocument =
+      file.type === "application/pdf" ||
+      file.type === "application/msword" ||
+      file.type ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    if (!isDocument) {
+      message.error("File yang bisa dipakai hanyalah file PDF atau MS Word!");
+    }
+    const isLt50M = file.size / 1024 / 1024 < 50;
+    if (!isLt50M) {
+      message.error("File harus lebih kecil dari 50MB!");
+    }
+    return isDocument && isLt50M;
+  };
+
+  const handleChangePdf: UploadProps["onChange"] = (
+    info: UploadChangeParam<UploadFile>
+  ) => {
+    if (info.file.status === "uploading") {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      // Get this url from response in real world.
+      setLoading(false);
+      setNoteUrl(info.file.response.data);
     }
   };
 
@@ -151,7 +187,7 @@ function CaborForm({}: ICaborFormProps) {
             <Input placeholder="Masukkan nama Cabang Olahraga" />
           </Form.Item>
           <Form.Item
-            label="Logo Cabang Olahraga"
+            label="Logo"
             name={"file"}
             rules={[
               {
@@ -174,6 +210,31 @@ function CaborForm({}: ICaborFormProps) {
                   alt="avatar"
                   className={Styles["logo"]}
                 />
+              ) : (
+                uploadButton
+              )}
+            </Upload>
+          </Form.Item>
+          <Form.Item
+            label="Petunjuk Teknis"
+            name={"file"}
+            rules={[
+              {
+                required: true,
+                message: "Tolong masukkan juknis untuk Cabang Olahraga ini",
+              },
+            ]}
+          >
+            <Upload
+              action={API_URL + "/uploads"}
+              name="file"
+              listType="picture-card"
+              beforeUpload={beforeUploadPdf}
+              onChange={handleChangePdf}
+              showUploadList={false}
+            >
+              {noteUrl ? (
+                <ReadOutlined className={Styles["document-icon"]} />
               ) : (
                 uploadButton
               )}

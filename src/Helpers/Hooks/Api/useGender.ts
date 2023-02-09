@@ -1,65 +1,59 @@
 import { API_URL } from "Config";
-import { ICabor, ICaborPost } from "Helpers/Interface/Cabor";
+import { IGender, IGenderPost } from "Helpers/Interface/Gender";
 import axios from "axios";
 import { useContext, useState } from "react";
-import { CaborContext } from "../Context/cabor";
+import { GenderContext } from "../Context/gender";
 
-export function useCabor() {
-    const [cabor, setCabor] = useState<ICabor[]>([]);
-    const [caborDetail, setCaborDetail] = useState<ICabor>({
+export function useGender() {
+    const [gender, setGender] = useState<IGender[]>([]);
+    const [genderDetail, setGenderDetail] = useState<IGender>({
         id: 0,
         name: '',
-        imageUrl: '',
-        noteUrl: '',
         deletedAt: null,
         createdAt: new Date(),
         updatedAt: new Date(),
     });
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
-    const caborContext = useContext(CaborContext);
+    const genderContext = useContext(GenderContext);
 
-    const getCabor = async () => {
+    const getGender = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(API_URL + '/sports');
+            const response = await axios.get(API_URL + '/sportGenders');
             setLoading(false);
-            caborContext.setCabor(response.data.data);
-            setCabor(response.data.data);
+            genderContext.setGender(response.data.data);
+            setGender(response.data.data);
             return response.data.data;
         } catch (error: any) {
             setLoading(false);
-            caborContext.setCabor([]);
-            setCabor([]);
+            genderContext.setGender([]);
+            setGender([]);
             setErrorMessage(error.response.data.message);
             throw error.response.data;
         }
     }
 
-    const getCaborById = async (id: number) => {
+    const getGenderById = async (id: number) => {
         setLoading(true);
         try {
-            const response = await axios.get(API_URL + '/sports/' + id);
+            const response = await axios.get(API_URL + '/sportGenders/' + id);
             setLoading(false);
-            caborContext.setCaborDetail(response.data.data);
-            setCaborDetail(response.data.data);
+            genderContext.setGenderDetail(response.data.data);
+            setGenderDetail(response.data.data);
             return response.data.data;
         } catch (error: any) {
             setLoading(false);
-            caborContext.setCaborDetail({
+            genderContext.setGenderDetail({
                 id: 0,
                 name: '',
-                imageUrl: '',
-                noteUrl: '',
                 deletedAt: null,
                 createdAt: new Date(),
                 updatedAt: new Date(),
             });
-            setCaborDetail({
+            setGenderDetail({
                 id: 0,
                 name: '',
-                imageUrl: '',
-                noteUrl: '',
                 deletedAt: null,
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -69,12 +63,12 @@ export function useCabor() {
         }
     };
 
-    const createCabor = async (data: ICaborPost) => {
+    const createGender = async (data: IGenderPost) => {
         setLoading(true);
         try {
             const response = await axios({
                 method: 'POST',
-                url: API_URL + '/sports',
+                url: API_URL + '/sportGenders',
                 data,
                 headers: {
                     'Content-Type': 'application/json',
@@ -90,12 +84,12 @@ export function useCabor() {
         }
     };
 
-    const updateCabor = async (id: number, data: ICaborPost) => {
+    const updateGender = async (id: number, data: IGenderPost) => {
         setLoading(true);
         try {
             const response = await axios({
                 method: 'PUT',
-                url: API_URL + '/sports/' + id,
+                url: API_URL + '/sportGenders/' + id,
                 data,
                 headers: {
                     'Content-Type': 'application/json',
@@ -111,12 +105,12 @@ export function useCabor() {
         }
     };
 
-    const deleteCabor = async (id: number) => {
+    const deleteGender = async (id: number) => {
         setLoading(true);
         try {
             const response = await axios({
                 method: 'DELETE',
-                url: API_URL + '/sports/' + id,
+                url: API_URL + '/sportGenders/' + id,
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
                 },
@@ -131,14 +125,14 @@ export function useCabor() {
     };
 
     return {
-        cabor,
-        caborDetail,
+        gender,
+        genderDetail,
         errorMessage,
-        getCabor,
-        getCaborById,
-        createCabor,
-        updateCabor,
-        deleteCabor,
+        getGender,
+        getGenderById,
+        createGender,
+        updateGender,
+        deleteGender,
         loading,
     }
 }

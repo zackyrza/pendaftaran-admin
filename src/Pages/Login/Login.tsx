@@ -4,13 +4,13 @@ import { Button, Form, Input, message } from "antd";
 import Styles from "./Login.module.scss";
 
 import { ILoginProps } from "./Login.d";
-import { useAuthLogin } from "Helpers/Hooks/Api/useAuth";
+import { useAuth } from "Helpers/Hooks/Api/useAuth";
 import { useNavigate } from "react-router-dom";
 
 function Login({}: ILoginProps) {
   const [messageApi, contextHolder] = message.useMessage();
   const [formType] = React.useState<"login" | "register">("login");
-  const { login } = useAuthLogin();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const onFinish = (values: any) => {

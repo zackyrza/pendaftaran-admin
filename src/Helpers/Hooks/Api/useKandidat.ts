@@ -1,124 +1,122 @@
+import { API_URL } from "Config";
+import { IKandidat, IKandidatPost } from "Helpers/Interface/Kandidat";
 import axios from "axios";
 import { useContext, useState } from "react";
+import { KandidatContext } from "../Context/kandidat";
 
-import { API_URL } from "Config";
-import { TokenContext } from "Helpers/Hooks/Context/token";
-import { UserContext } from "Helpers/Hooks/Context/user";
-import { IUserPost } from "Helpers/Interface/User";
-
-export function useAuth() {
-    const [errorMessage, setErrorMessage] = useState('');
-    const [users, setUsers] = useState([]);
-    const [user, setUser] = useState({
+export function useKandidat() {
+    const [kandidat, setKandidat] = useState<IKandidat[]>([]);
+    const [kandidatDetail, setKandidatDetail] = useState<IKandidat>({
         id: 0,
+        name: "",
+        status: "",
+        nik: "",
+        age: 0,
+        education: "",
+        weight: 0,
+        height: 0,
+        handphone: "",
+        occupation: "",
+        maritalStatus: "",
+        gender: "",
         email: "",
-        password: "",
-        fullName: "",
-        role: "",
+        registrationId: 0,
+        religion: "",
+        bloodType: "",
+        rhesusType: "",
+        placeOfBirth: "",
+        birthDate: new Date(),
         deletedAt: null,
         createdAt: new Date(),
         updatedAt: new Date(),
     });
+    const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
-    const tokenContext = useContext(TokenContext);
-    const userContext = useContext(UserContext);
+    const kandidatContext = useContext(KandidatContext);
 
-    const login = async (email: string, password: string) => {
-        try {
-            const response = await axios.post(API_URL+'/users/login', {
-                email,
-                password,
-                isCMS: true,
-            });
-            tokenContext.setToken(response.data.token);
-            userContext.setUser(response.data.data);
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.data));
-
-            return response.data;
-        } catch (error: any) {
-            setErrorMessage(error.response.data.message);
-            throw error.response.data;
-        }
-    }
-
-    const logout = async () => {
-        try {
-            await tokenContext.setToken('');
-            await userContext.setUser({
-                id: 0,
-                email: "",
-                password: "",
-                fullName: "",
-                role: "",
-                deletedAt: null,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            });
-            await localStorage.removeItem('token');
-            await localStorage.removeItem('user');
-            return true;
-        } catch (error: any) {
-            setErrorMessage('Terjadi kesalahan saat logout');
-            throw error;
-        }
-    }
-
-    const getUser = async () => {
+    const getKandidat = async () => {
         setLoading(true);
         try {
             const response = await axios({
                 method: 'GET',
-                url: API_URL + '/users',
+                url: API_URL + '/candidates',
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
                 },
             });
             setLoading(false);
-            userContext.setUsers(response.data.data);
-            setUsers(response.data.data);
+            kandidatContext.setKandidat(response.data.data);
+            setKandidat(response.data.data);
             return response.data.data;
         } catch (error: any) {
             setLoading(false);
-            userContext.setUsers([]);
-            setUsers([]);
+            kandidatContext.setKandidat([]);
+            setKandidat([]);
             setErrorMessage(error.response.data.message);
             throw error.response.data;
         }
     }
 
-    const getUserById = async (id: number) => {
+    const getKandidatById = async (id: number) => {
         setLoading(true);
         try {
             const response = await axios({
                 method: 'GET',
-                url: API_URL + '/users/' + id,
+                url: API_URL + '/candidates/' + id,
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
                 },
-            });
+            })
             setLoading(false);
-            userContext.setUser(response.data.data);
-            setUser(response.data.data);
+            kandidatContext.setKandidatDetail(response.data.data);
+            setKandidatDetail(response.data.data);
             return response.data.data;
         } catch (error: any) {
             setLoading(false);
-            userContext.setUser({
+            kandidatContext.setKandidatDetail({
                 id: 0,
+                name: "",
+                status: "",
+                nik: "",
+                age: 0,
+                education: "",
+                weight: 0,
+                height: 0,
+                handphone: "",
+                occupation: "",
+                maritalStatus: "",
+                gender: "",
                 email: "",
-                password: "",
-                fullName: "",
-                role: "",
+                registrationId: 0,
+                religion: "",
+                bloodType: "",
+                rhesusType: "",
+                placeOfBirth: "",
+                birthDate: new Date(),
                 deletedAt: null,
                 createdAt: new Date(),
                 updatedAt: new Date(),
             });
-            setUser({
+            setKandidatDetail({
                 id: 0,
+                name: "",
+                status: "",
+                nik: "",
+                age: 0,
+                education: "",
+                weight: 0,
+                height: 0,
+                handphone: "",
+                occupation: "",
+                maritalStatus: "",
+                gender: "",
                 email: "",
-                password: "",
-                fullName: "",
-                role: "",
+                registrationId: 0,
+                religion: "",
+                bloodType: "",
+                rhesusType: "",
+                placeOfBirth: "",
+                birthDate: new Date(),
                 deletedAt: null,
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -128,12 +126,12 @@ export function useAuth() {
         }
     };
 
-    const createUser = async (data: IUserPost) => {
+    const createKandidat = async (data: IKandidatPost) => {
         setLoading(true);
         try {
             const response = await axios({
                 method: 'POST',
-                url: API_URL + '/users',
+                url: API_URL + '/candidates',
                 data,
                 headers: {
                     'Content-Type': 'application/json',
@@ -149,12 +147,12 @@ export function useAuth() {
         }
     };
 
-    const updateUser = async (id: number, data: IUserPost) => {
+    const updateKandidat = async (id: number, data: IKandidatPost) => {
         setLoading(true);
         try {
             const response = await axios({
                 method: 'PUT',
-                url: API_URL + '/users/' + id,
+                url: API_URL + '/candidates/' + id,
                 data,
                 headers: {
                     'Content-Type': 'application/json',
@@ -170,12 +168,12 @@ export function useAuth() {
         }
     };
 
-    const deleteUser = async (id: number) => {
+    const deleteKandidat = async (id: number) => {
         setLoading(true);
         try {
             const response = await axios({
                 method: 'DELETE',
-                url: API_URL + '/users/' + id,
+                url: API_URL + '/candidates/' + id,
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
                 },
@@ -190,16 +188,14 @@ export function useAuth() {
     };
 
     return {
-        login,
-        logout,
+        kandidat,
+        kandidatDetail,
         errorMessage,
+        getKandidat,
+        getKandidatById,
+        createKandidat,
+        updateKandidat,
+        deleteKandidat,
         loading,
-        getUser,
-        users,
-        getUserById,
-        user,
-        createUser,
-        updateUser,
-        deleteUser,
     }
 }

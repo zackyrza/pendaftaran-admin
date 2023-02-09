@@ -8,3 +8,10 @@ export interface IUser {
   createdAt: Date,
   updatedAt: Date,
 }
+
+export interface IUserPost {
+  email: string,
+  password: string,
+  fullName: string,
+  role: string,
+}

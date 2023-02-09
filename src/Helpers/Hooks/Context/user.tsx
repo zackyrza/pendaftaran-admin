@@ -4,6 +4,8 @@ import { ReactElement, createContext, useState } from "react";
 interface IUserContext {
   user: IUser;
   setUser: (user: IUser) => void;
+  users: IUser[];
+  setUsers: (users: IUser[]) => void;
 }
 
 export const UserContext = createContext<IUserContext>({
@@ -18,6 +20,8 @@ export const UserContext = createContext<IUserContext>({
     updatedAt: new Date(),
   },
   setUser: (user: IUser) => {},
+  users: [],
+  setUsers: (users: IUser[]) => {},
 });
 
 export const UserProvider: React.FC<{ children: ReactElement }> = ({
@@ -33,9 +37,10 @@ export const UserProvider: React.FC<{ children: ReactElement }> = ({
     createdAt: new Date(),
     updatedAt: new Date(),
   });
+  const [users, setUsers] = useState<IUser[]>([]);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, users, setUsers }}>
       {children}
     </UserContext.Provider>
   );

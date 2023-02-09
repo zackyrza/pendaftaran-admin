@@ -1,22 +1,21 @@
 import React from "react";
-import Styles from "./KabupatenForm.module.scss";
+import Styles from "./GenderForm.module.scss";
 import { Button, Form, Input, message } from "antd";
 
-import { IKabupatenFormProps } from "./KabupatenForm.d";
+import { IGenderFormProps } from "./GenderForm.d";
 import { LooseObject } from "Helpers/Interface/LooseObject";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useKabupaten } from "Helpers/Hooks/Api/useKabupaten";
-import { KabupatenProvider } from "Helpers/Hooks/Context/kabupaten";
+import { useGender } from "Helpers/Hooks/Api/useGender";
+import { GenderProvider } from "Helpers/Hooks/Context/gender";
 
-function KabupatenForm({}: IKabupatenFormProps) {
+function GenderForm({}: IGenderFormProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const isCreate = location.pathname.includes("create");
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
 
-  const { loading, createKabupaten, updateKabupaten, getKabupatenById } =
-    useKabupaten();
+  const { loading, createGender, updateGender, getGenderById } = useGender();
 
   React.useEffect(() => {
     if (loading) {
@@ -32,11 +31,11 @@ function KabupatenForm({}: IKabupatenFormProps) {
 
   const onFinish = (values: LooseObject) => {
     if (isCreate) {
-      createKabupaten({ name: values.name })
+      createGender({ name: values.name })
         .then((res) => {
           messageApi.open({
             type: "success",
-            content: "Kabupaten berhasil dibuat!",
+            content: "Gender berhasil dibuat!",
           });
           setTimeout(() => {
             navigate(-1);
@@ -51,13 +50,13 @@ function KabupatenForm({}: IKabupatenFormProps) {
       return;
     }
 
-    updateKabupaten(Number(location.pathname.split("/")[2]), {
+    updateGender(Number(location.pathname.split("/")[2]), {
       name: values.name,
     })
       .then((res) => {
         messageApi.open({
           type: "success",
-          content: "Kabupaten berhasil diubah!",
+          content: "Gender berhasil diubah!",
         });
         setTimeout(() => {
           navigate(-1);
@@ -78,7 +77,7 @@ function KabupatenForm({}: IKabupatenFormProps) {
   React.useEffect(() => {
     if (!isCreate) {
       // Get data from API
-      getKabupatenById(Number(location.pathname.split("/")[2])).then((res) => {
+      getGenderById(Number(location.pathname.split("/")[2])).then((res) => {
         form.setFieldsValue({
           name: res.name,
         });
@@ -87,27 +86,27 @@ function KabupatenForm({}: IKabupatenFormProps) {
   }, [isCreate]);
 
   return (
-    <KabupatenProvider>
+    <GenderProvider>
       <div className={Styles["wrapper"]}>
         {contextHolder}
         <Form
           form={form}
-          name="form-kabupaten"
+          name="form-gender"
           layout={"vertical"}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
         >
           <Form.Item
-            label="Nama Kota / Kabupaten"
+            label="Nama Kota / Gender"
             name="name"
             rules={[
               {
                 required: true,
-                message: "Tolong masukkan nama Kota / Kabupaten",
+                message: "Tolong masukkan nama Kota / Gender",
               },
             ]}
           >
-            <Input placeholder="Masukkan nama Kota / Kabupaten" />
+            <Input placeholder="Masukkan nama Kota / Gender" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
@@ -116,8 +115,8 @@ function KabupatenForm({}: IKabupatenFormProps) {
           </Form.Item>
         </Form>
       </div>
-    </KabupatenProvider>
+    </GenderProvider>
   );
 }
 
-export default KabupatenForm;
+export default GenderForm;

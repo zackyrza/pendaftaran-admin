@@ -1,22 +1,26 @@
 import React from "react";
-import Styles from "./KabupatenForm.module.scss";
-import { Button, Form, Input, message } from "antd";
+import Styles from "./KategoriForm.module.scss";
+import { Button, Form, Input, message, Select } from "antd";
 
-import { IKabupatenFormProps } from "./KabupatenForm.d";
+import { IKategoriFormProps } from "./KategoriForm.d";
 import { LooseObject } from "Helpers/Interface/LooseObject";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useKabupaten } from "Helpers/Hooks/Api/useKabupaten";
-import { KabupatenProvider } from "Helpers/Hooks/Context/kabupaten";
+import { useKategori } from "Helpers/Hooks/Api/useKategori";
+import { KategoriProvider } from "Helpers/Hooks/Context/kategori";
+import { useCabor } from "Helpers/Hooks/Api/useCabor";
 
-function KabupatenForm({}: IKabupatenFormProps) {
+const { Option } = Select;
+
+function KategoriForm({}: IKategoriFormProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const isCreate = location.pathname.includes("create");
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
 
-  const { loading, createKabupaten, updateKabupaten, getKabupatenById } =
-    useKabupaten();
+  const { loading, createKategori, updateKategori, getKategoriById } =
+    useKategori();
+  const { getCabor, cabor } = useCabor();
 
   React.useEffect(() => {
     if (loading) {
@@ -32,11 +36,11 @@ function KabupatenForm({}: IKabupatenFormProps) {
 
   const onFinish = (values: LooseObject) => {
     if (isCreate) {
-      createKabupaten({ name: values.name })
+      createKategori({ name: values.name, sportId: values.sportId })
         .then((res) => {
           messageApi.open({
             type: "success",
-            content: "Kabupaten berhasil dibuat!",
+            content: "Kategori berhasil dibuat!",
           });
           setTimeout(() => {
             navigate(-1);
@@ -51,13 +55,14 @@ function KabupatenForm({}: IKabupatenFormProps) {
       return;
     }
 
-    updateKabupaten(Number(location.pathname.split("/")[2]), {
+    updateKategori(Number(location.pathname.split("/")[2]), {
       name: values.name,
+      sportId: values.sportId,
     })
       .then((res) => {
         messageApi.open({
           type: "success",
-          content: "Kabupaten berhasil diubah!",
+          content: "Kategori berhasil diubah!",
         });
         setTimeout(() => {
           navigate(-1);
@@ -76,38 +81,68 @@ function KabupatenForm({}: IKabupatenFormProps) {
   };
 
   React.useEffect(() => {
+    getCabor();
     if (!isCreate) {
       // Get data from API
-      getKabupatenById(Number(location.pathname.split("/")[2])).then((res) => {
+      getKategoriById(Number(location.pathname.split("/")[2])).then((res) => {
         form.setFieldsValue({
           name: res.name,
+          sportId: res.sportId,
         });
       });
     }
   }, [isCreate]);
 
+  const onCaborChange = (value: string) => {
+    form.setFieldsValue({
+      sportId: Number(value),
+    });
+  };
+
   return (
-    <KabupatenProvider>
+    <KategoriProvider>
       <div className={Styles["wrapper"]}>
         {contextHolder}
         <Form
           form={form}
-          name="form-kabupaten"
+          name="form-kategori"
           layout={"vertical"}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
         >
           <Form.Item
-            label="Nama Kota / Kabupaten"
+            label="Kategori"
             name="name"
             rules={[
               {
                 required: true,
-                message: "Tolong masukkan nama Kota / Kabupaten",
+                message: "Tolong masukkan nama Kategori",
               },
             ]}
           >
-            <Input placeholder="Masukkan nama Kota / Kabupaten" />
+            <Input placeholder="Masukkan nama Kategori" />
+          </Form.Item>
+          <Form.Item
+            label="Cabang Olahraga"
+            name="sportId"
+            rules={[
+              {
+                required: true,
+                message: "Tolong masukkan nama Cabang Olahraga",
+              },
+            ]}
+          >
+            <Select
+              placeholder="Pilih cabang olahraga"
+              onChange={onCaborChange}
+              allowClear
+            >
+              {cabor.map((item) => (
+                <Option key={item.id + "-" + item.name} value={item.id}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
@@ -116,8 +151,8 @@ function KabupatenForm({}: IKabupatenFormProps) {
           </Form.Item>
         </Form>
       </div>
-    </KabupatenProvider>
+    </KategoriProvider>
   );
 }
 
-export default KabupatenForm;
+export default KategoriForm;

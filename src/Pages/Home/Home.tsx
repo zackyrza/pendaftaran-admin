@@ -9,10 +9,17 @@ import {
   MenuUnfoldOutlined,
   BankOutlined,
   StarOutlined,
+  ReadOutlined,
+  TeamOutlined,
+  UserOutlined,
+  ReconciliationOutlined,
+  SolutionOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
 import { TokenContext, TokenProvider } from "Helpers/Hooks/Context/token";
 import { UserContext, UserProvider } from "Helpers/Hooks/Context/user";
+import { useAuth } from "Helpers/Hooks/Api/useAuth";
 
 const { Header, Sider, Content } = Layout;
 
@@ -20,6 +27,7 @@ function Home({}: IHomeProps) {
   const navigate = useNavigate();
   const tokenContext = useContext(TokenContext);
   const userContext = useContext(UserContext);
+  const { logout } = useAuth();
 
   React.useEffect(() => {
     const token = localStorage.getItem("token");
@@ -62,18 +70,46 @@ function Home({}: IHomeProps) {
                     icon: <StarOutlined />,
                     label: "Cabang Olahraga",
                   },
+                  {
+                    key: "kategori",
+                    icon: <ReadOutlined />,
+                    label: "Kategori",
+                  },
+                  {
+                    key: "gender",
+                    icon: <UserOutlined />,
+                    label: "Gender",
+                  },
+                  {
+                    key: "user",
+                    icon: <TeamOutlined />,
+                    label: "User",
+                  },
+                  {
+                    key: "pendaftaran",
+                    icon: <ReconciliationOutlined />,
+                    label: "Pendaftaran",
+                  },
+                  {
+                    key: "kandidat",
+                    icon: <SolutionOutlined />,
+                    label: "Kandidat",
+                  },
+                  {
+                    key: "logout",
+                    icon: <LogoutOutlined />,
+                    label: "Keluar",
+                  },
                 ]}
                 onSelect={({ key }) => {
-                  switch (key) {
-                    case "kabupaten":
-                      navigate("/kabupaten");
-                      break;
-                    case "cabor":
-                      navigate("/cabor");
-                      break;
-                    default:
-                      break;
+                  if (key === "logout") {
+                    logout().then(() => {
+                      localStorage.clear();
+                      navigate("/login");
+                    });
+                    return;
                   }
+                  navigate(`/${key}`);
                 }}
               />
             </Sider>
