@@ -1,2 +1,2 @@
-export const API_URL = 'http://localhost:8000/api';
-export const IMAGE_URL = 'http://localhost:8000/';
+export const API_URL = 'http://pendaftaran-backend.mitraniagateknologi.com/api';
+export const IMAGE_URL = 'http://pendaftaran-backend.mitraniagateknologi.com/';
