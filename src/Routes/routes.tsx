@@ -16,6 +16,7 @@ import Pendaftaran from "Pages/Pendaftaran";
 import PendaftaranForm from "Pages/PendaftaranForm";
 import Kandidat from "Pages/Kandidat";
 import KandidatForm from "Pages/KandidatForm";
+import Cetak from "Pages/Cetak";
 
 const routes = createBrowserRouter([
   {
@@ -78,6 +79,10 @@ const routes = createBrowserRouter([
       {
         path: "kandidat/:id",
         element: <KandidatForm />,
+      },
+      {
+        path: "cetak",
+        element: <Cetak />,
       },
     ],
   },

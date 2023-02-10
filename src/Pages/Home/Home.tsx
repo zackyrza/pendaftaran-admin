@@ -15,6 +15,7 @@ import {
   ReconciliationOutlined,
   SolutionOutlined,
   LogoutOutlined,
+  PrinterOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
 import { TokenContext, TokenProvider } from "Helpers/Hooks/Context/token";
@@ -94,6 +95,11 @@ function Home({}: IHomeProps) {
                     key: "kandidat",
                     icon: <SolutionOutlined />,
                     label: "Kandidat",
+                  },
+                  {
+                    key: "cetak",
+                    icon: <PrinterOutlined />,
+                    label: "Cetak / Print Laporan",
                   },
                   {
                     key: "logout",
