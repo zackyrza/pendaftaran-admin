@@ -19,27 +19,27 @@ function Pendaftaran({}: IPendaftaranProps) {
 
   const onDelete = (
     id: number,
-    nama?: string,
+    email?: string,
     kategori?: string,
     cabor?: string
   ) => {
     confirm({
       title: `Anda yakin ingin menghapus pendaftaran tahap 1 ini?`,
       icon: <ExclamationCircleFilled />,
-      content: `Pendaftaran tahap 1 dari ${nama} untuk kategori ${kategori} dari cabang olahraga ${cabor} akan dihapus, dan tidak dapat dikembalikan lagi.`,
+      content: `Pendaftaran tahap 1 dari ${email} untuk kategori ${kategori} dari cabang olahraga ${cabor} akan dihapus, dan tidak dapat dikembalikan lagi.`,
       onOk() {
         deletePendaftaran(id)
           .then(() => {
             messageApi.open({
               type: "success",
-              content: `Pendaftaran tahap 1 dari ${nama} untuk kategori ${kategori} dari cabang olahraga ${cabor} berhasil dihapus.`,
+              content: `Pendaftaran tahap 1 dari ${email} untuk kategori ${kategori} dari cabang olahraga ${cabor} berhasil dihapus.`,
             });
             getPendaftaran();
           })
           .catch(() => {
             messageApi.open({
               type: "error",
-              content: `Pendaftaran tahap 1 dari ${nama} untuk kategori ${kategori} dari cabang olahraga ${cabor} gagal dihapus.`,
+              content: `Pendaftaran tahap 1 dari ${email} untuk kategori ${kategori} dari cabang olahraga ${cabor} gagal dihapus.`,
             });
           });
       },
@@ -94,7 +94,7 @@ function Pendaftaran({}: IPendaftaranProps) {
             onClick={() =>
               onDelete(
                 record.id,
-                record.user?.fullName,
+                record.email,
                 record.class?.name,
                 record.class?.sport?.name
               )
