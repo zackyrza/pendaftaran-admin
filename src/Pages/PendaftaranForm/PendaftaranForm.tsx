@@ -53,7 +53,7 @@ function PendaftaranForm({}: IPendaftaranFormProps) {
       createPendaftaran({
         quantity: values.quantity,
         cityId: values.cityId,
-        userId: JSON.parse(localStorage.getItem("user") ?? "").id,
+        email: values.email,
         classId: values.classId,
         sportGenderId: values.sportGenderId,
       })
@@ -78,7 +78,7 @@ function PendaftaranForm({}: IPendaftaranFormProps) {
     updatePendaftaran(Number(location.pathname.split("/")[2]), {
       quantity: values.quantity,
       cityId: values.cityId,
-      userId: values.userId,
+      email: values.email,
       classId: values.classId,
       sportGenderId: values.sportGenderId,
     })
@@ -206,6 +206,18 @@ function PendaftaranForm({}: IPendaftaranFormProps) {
             ]}
           >
             <Input placeholder="Masukkan Jumlah Peserta" type="number" />
+          </Form.Item>
+          <Form.Item
+            label="Email Pendaftar"
+            name="email"
+            rules={[
+              {
+                required: true,
+                message: "Tolong masukkan Email pendaftar",
+              },
+            ]}
+          >
+            <Input placeholder="Masukkan Email pendaftar" type="number" />
           </Form.Item>
           <Form.Item
             label="Kabupaten / Kota"
