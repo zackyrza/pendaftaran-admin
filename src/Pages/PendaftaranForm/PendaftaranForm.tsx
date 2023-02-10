@@ -217,7 +217,7 @@ function PendaftaranForm({}: IPendaftaranFormProps) {
               },
             ]}
           >
-            <Input placeholder="Masukkan Email pendaftar" type="number" />
+            <Input placeholder="Masukkan Email pendaftar" type="email" />
           </Form.Item>
           <Form.Item
             label="Kabupaten / Kota"

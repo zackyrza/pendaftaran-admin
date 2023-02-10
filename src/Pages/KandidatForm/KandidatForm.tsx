@@ -25,6 +25,8 @@ function KandidatForm({}: IKandidatFormProps) {
 
   const [loadingUpload, setLoading] = React.useState<boolean>(false);
   const [photo, setPhoto] = React.useState<string>("");
+  const [ktp, setKTP] = React.useState<string>("");
+  const [ijazah, setIjazah] = React.useState<string>("");
 
   const { loading, createKandidat, updateKandidat, getKandidatById } =
     useKandidat();
@@ -64,6 +66,8 @@ function KandidatForm({}: IKandidatFormProps) {
         maritalStatus: values.maritalStatus,
         email: values.email,
         photo,
+        ktp,
+        ijazah,
       })
         .then((res) => {
           messageApi.open({
@@ -103,6 +107,8 @@ function KandidatForm({}: IKandidatFormProps) {
       maritalStatus: values.maritalStatus,
       email: values.email,
       photo,
+      ktp,
+      ijazah,
     })
       .then((res) => {
         messageApi.open({
@@ -154,6 +160,8 @@ function KandidatForm({}: IKandidatFormProps) {
           email: res.email,
         });
         setPhoto(res.photo);
+        setKTP(res.ktp);
+        setIjazah(res.ijazah);
       });
     } else {
       form.setFieldsValue({
@@ -218,6 +226,34 @@ function KandidatForm({}: IKandidatFormProps) {
       // Get this url from response in real world.
       setLoading(false);
       setPhoto(info.file.response.data);
+    }
+  };
+
+  const handleUploadKTP: UploadProps["onChange"] = (
+    info: UploadChangeParam<UploadFile>
+  ) => {
+    if (info.file.status === "uploading") {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      // Get this url from response in real world.
+      setLoading(false);
+      setKTP(info.file.response.data);
+    }
+  };
+
+  const handleUploadIjazah: UploadProps["onChange"] = (
+    info: UploadChangeParam<UploadFile>
+  ) => {
+    if (info.file.status === "uploading") {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      // Get this url from response in real world.
+      setLoading(false);
+      setIjazah(info.file.response.data);
     }
   };
 
@@ -497,16 +533,7 @@ function KandidatForm({}: IKandidatFormProps) {
               <Option value={"CERAI"}>Telah Cerai</Option>
             </Select>
           </Form.Item>
-          <Form.Item
-            label="Logo"
-            name={"file"}
-            rules={[
-              {
-                required: true,
-                message: "Tolong masukkan logo Cabang Olahraga",
-              },
-            ]}
-          >
+          <Form.Item label="Pas Foto" name={"file"}>
             <Upload
               action={API_URL + "/uploads"}
               name="file"
@@ -518,6 +545,46 @@ function KandidatForm({}: IKandidatFormProps) {
               {photo ? (
                 <img
                   src={`${IMAGE_URL}${photo}`}
+                  alt="avatar"
+                  className={Styles["logo"]}
+                />
+              ) : (
+                uploadButton
+              )}
+            </Upload>
+          </Form.Item>
+          <Form.Item label="Foto KTP" name={"file"}>
+            <Upload
+              action={API_URL + "/uploads"}
+              name="file"
+              listType="picture-card"
+              beforeUpload={beforeUpload}
+              onChange={handleUploadKTP}
+              showUploadList={false}
+            >
+              {ktp ? (
+                <img
+                  src={`${IMAGE_URL}${ktp}`}
+                  alt="avatar"
+                  className={Styles["logo"]}
+                />
+              ) : (
+                uploadButton
+              )}
+            </Upload>
+          </Form.Item>
+          <Form.Item label="Foto Ijazah" name={"file"}>
+            <Upload
+              action={API_URL + "/uploads"}
+              name="file"
+              listType="picture-card"
+              beforeUpload={beforeUpload}
+              onChange={handleUploadIjazah}
+              showUploadList={false}
+            >
+              {ijazah ? (
+                <img
+                  src={`${IMAGE_URL}${ijazah}`}
                   alt="avatar"
                   className={Styles["logo"]}
                 />
