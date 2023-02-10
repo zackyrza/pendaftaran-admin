@@ -1,6 +1,6 @@
 import React from "react";
 import Styles from "./KandidatForm.module.scss";
-import type { DatePickerProps } from "antd";
+import { DatePickerProps, Upload, UploadFile, UploadProps } from "antd";
 import { Button, Form, Input, message, Select, DatePicker } from "antd";
 import moment from "moment";
 
@@ -10,6 +10,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useKandidat } from "Helpers/Hooks/Api/useKandidat";
 import { KandidatProvider } from "Helpers/Hooks/Context/kandidat";
 import { usePendaftaran } from "Helpers/Hooks/Api/usePendaftaran";
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import { API_URL, IMAGE_URL } from "Config";
+import { RcFile, UploadChangeParam } from "antd/es/upload";
 
 const { Option } = Select;
 
@@ -19,6 +22,9 @@ function KandidatForm({}: IKandidatFormProps) {
   const isCreate = location.pathname.includes("create");
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
+
+  const [loadingUpload, setLoading] = React.useState<boolean>(false);
+  const [photo, setPhoto] = React.useState<string>("");
 
   const { loading, createKandidat, updateKandidat, getKandidatById } =
     useKandidat();
@@ -57,6 +63,7 @@ function KandidatForm({}: IKandidatFormProps) {
         occupation: values.occupation,
         maritalStatus: values.maritalStatus,
         email: values.email,
+        photo,
       })
         .then((res) => {
           messageApi.open({
@@ -95,6 +102,7 @@ function KandidatForm({}: IKandidatFormProps) {
       occupation: values.occupation,
       maritalStatus: values.maritalStatus,
       email: values.email,
+      photo,
     })
       .then((res) => {
         messageApi.open({
@@ -145,6 +153,7 @@ function KandidatForm({}: IKandidatFormProps) {
           maritalStatus: res.maritalStatus,
           email: res.email,
         });
+        setPhoto(res.photo);
       });
     } else {
       form.setFieldsValue({
@@ -177,6 +186,39 @@ function KandidatForm({}: IKandidatFormProps) {
       birthDate: date.toDate(),
       age: moment().diff(date.toDate(), "years"),
     });
+  };
+
+  const beforeUpload = (file: RcFile) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("File yang bisa dipakai hanyalah file JPG atau PNG!");
+    }
+    const isLt10M = file.size / 1024 / 1024 < 10;
+    if (!isLt10M) {
+      message.error("Foto harus lebih kecil dari 10MB!");
+    }
+    return isJpgOrPng && isLt10M;
+  };
+
+  const uploadButton = (
+    <div>
+      {loadingUpload ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
+  const handleUpload: UploadProps["onChange"] = (
+    info: UploadChangeParam<UploadFile>
+  ) => {
+    if (info.file.status === "uploading") {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      // Get this url from response in real world.
+      setLoading(false);
+      setPhoto(info.file.response.data);
+    }
   };
 
   return (
@@ -454,6 +496,35 @@ function KandidatForm({}: IKandidatFormProps) {
               <Option value={"BELUM KAWIN"}>Belum Kawin</Option>
               <Option value={"CERAI"}>Telah Cerai</Option>
             </Select>
+          </Form.Item>
+          <Form.Item
+            label="Logo"
+            name={"file"}
+            rules={[
+              {
+                required: true,
+                message: "Tolong masukkan logo Cabang Olahraga",
+              },
+            ]}
+          >
+            <Upload
+              action={API_URL + "/uploads"}
+              name="file"
+              listType="picture-card"
+              beforeUpload={beforeUpload}
+              onChange={handleUpload}
+              showUploadList={false}
+            >
+              {photo ? (
+                <img
+                  src={`${IMAGE_URL}${photo}`}
+                  alt="avatar"
+                  className={Styles["logo"]}
+                />
+              ) : (
+                uploadButton
+              )}
+            </Upload>
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">

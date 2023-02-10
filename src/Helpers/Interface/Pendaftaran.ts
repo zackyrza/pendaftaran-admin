@@ -2,7 +2,6 @@ import { IGender } from "./Gender";
 import { IKabupaten } from "./Kabupaten";
 import { IKandidat } from "./Kandidat";
 import { IKategori } from "./Kategori";
-import { IUser } from "./User";
 
 export interface IPendaftaran {
     id: number;
@@ -11,8 +10,7 @@ export interface IPendaftaran {
     cityId: number,
     classId: number,
     class?: IKategori,
-    userId: number,
-    user?: IUser,
+    email: string,
     sportGenderId: number,
     sportGender?: IGender,
     candidates?: IKandidat[];
@@ -25,6 +23,6 @@ export interface IPendaftaranPost {
     quantity: number,
     cityId: number,
     classId: number,
-    userId: number,
+    email: string,
     sportGenderId: number,
 }
