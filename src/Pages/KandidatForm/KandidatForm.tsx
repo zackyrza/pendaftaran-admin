@@ -252,7 +252,7 @@ function KandidatForm({}: IKandidatFormProps) {
                   key={
                     item.id +
                     "-" +
-                    item.user?.fullName +
+                    item.email +
                     "-" +
                     item.class?.sport?.name +
                     "-" +
@@ -262,8 +262,8 @@ function KandidatForm({}: IKandidatFormProps) {
                   }
                   value={item.id}
                 >
-                  {item.user?.fullName} - {item.class?.sport?.name} -{" "}
-                  {item.class?.name} - {item.city?.name}
+                  {item.email} - {item.class?.sport?.name} - {item.class?.name}{" "}
+                  - {item.city?.name}
                 </Option>
               ))}
             </Select>
