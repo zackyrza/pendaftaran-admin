@@ -68,6 +68,8 @@ function KandidatForm({}: IKandidatFormProps) {
         photo,
         ktp,
         ijazah,
+        shoesNumber: values.shoesNumber,
+        shirtSize: values.shirtSize,
       })
         .then((res) => {
           messageApi.open({
@@ -109,6 +111,8 @@ function KandidatForm({}: IKandidatFormProps) {
       photo,
       ktp,
       ijazah,
+      shoesNumber: values.shoesNumber,
+      shirtSize: values.shirtSize,
     })
       .then((res) => {
         messageApi.open({
@@ -158,6 +162,8 @@ function KandidatForm({}: IKandidatFormProps) {
           occupation: res.occupation,
           maritalStatus: res.maritalStatus,
           email: res.email,
+          shoesNumber: res.shoesNumber,
+          shirtSize: res.shirtSize,
         });
         setPhoto(res.photo);
         setKTP(res.ktp);
@@ -532,6 +538,30 @@ function KandidatForm({}: IKandidatFormProps) {
               <Option value={"BELUM KAWIN"}>Belum Kawin</Option>
               <Option value={"CERAI"}>Telah Cerai</Option>
             </Select>
+          </Form.Item>
+          <Form.Item
+            label="Nomor Sepatu"
+            name="shoesNumber"
+            rules={[
+              {
+                required: true,
+                message: "Tolong masukkan Nomor Sepatu Kandidat",
+              },
+            ]}
+          >
+            <Input placeholder="Masukkan Nomor Sepatu Kandidat" type="number" />
+          </Form.Item>
+          <Form.Item
+            label="Ukuran Baju"
+            name="shirtSize"
+            rules={[
+              {
+                required: true,
+                message: "Tolong masukkan Ukuran Baju Kandidat",
+              },
+            ]}
+          >
+            <Input placeholder="Masukkan Ukuran Baju Kandidat" />
           </Form.Item>
           <Form.Item label="Pas Foto" name={"file"}>
             <Upload

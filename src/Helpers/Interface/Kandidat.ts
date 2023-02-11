@@ -24,6 +24,8 @@ export interface IKandidat {
   photo: string,
   ktp: string,
   ijazah: string,
+  shoesNumber: string,
+  shirtSize: string,
   deletedAt: Date | null,
   createdAt: Date,
   updatedAt: Date,
@@ -51,4 +53,6 @@ export interface IKandidatPost {
   photo: string,
   ktp: string,
   ijazah: string,
+  shoesNumber: string,
+  shirtSize: string,
 }
