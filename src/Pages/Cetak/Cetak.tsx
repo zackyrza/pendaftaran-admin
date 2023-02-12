@@ -8,6 +8,11 @@ import { useKabupaten } from "Helpers/Hooks/Api/useKabupaten";
 import { useKategori } from "Helpers/Hooks/Api/useKategori";
 import { LooseObject } from "Helpers/Interface/LooseObject";
 import { useMail } from "Helpers/Hooks/Api/useMail";
+import { IMAGE_URL } from "Config";
+import { useReactToPrint } from "react-to-print";
+
+import background from "Images/id-card-bg.png";
+import { useKandidat } from "Helpers/Hooks/Api/useKandidat";
 
 const { Option } = Select;
 
@@ -15,10 +20,17 @@ function Cetak({}: ICetakProps) {
   const { getCabor, cabor } = useCabor();
   const { getKabupaten, kabupaten } = useKabupaten();
   const { getKategoriBySportId, kategori } = useKategori();
+  const { getKandidatForIdCard, kandidat } = useKandidat();
   const [formTab1] = Form.useForm();
   const [formTab2] = Form.useForm();
+  const [formTab3] = Form.useForm();
   const { sendFirstStepMail, sendSecondStepMail } = useMail();
   const [messageApi, contextHolder] = message.useMessage();
+
+  const componentRef = React.useRef<HTMLDivElement>(null);
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+  });
 
   React.useEffect(() => {
     getCabor();
@@ -71,6 +83,43 @@ function Cetak({}: ICetakProps) {
 
   const onCaborChangeStep2 = (value: string) => {
     getKategoriBySportId(Number(value));
+  };
+
+  const onFinishTab3 = (values: LooseObject) => {
+    messageApi.loading({
+      key: "loading",
+      content: "Memproses data...",
+      duration: 0,
+    });
+    getKandidatForIdCard(values.caborId, values.cityId)
+      .then(() => {
+        messageApi.destroy("loading");
+        messageApi.success({
+          content: "Data berhasil dimuat",
+          duration: 2,
+        });
+        handlePrint();
+      })
+      .catch(() => {
+        messageApi.destroy("loading");
+        messageApi.error({
+          content: "Data gagal dimuat",
+          duration: 2,
+        });
+      });
+  };
+  const onFinishTab3Failed = (values: LooseObject) => {};
+
+  const onKabupatenChangeStep3 = (value: string) => {
+    formTab3.setFieldsValue({
+      cityId: Number(value),
+    });
+  };
+
+  const onCaborChangeStep3 = (value: string) => {
+    formTab3.setFieldsValue({
+      caborId: Number(value),
+    });
   };
 
   const renderTab1 = () => {
@@ -245,6 +294,65 @@ function Cetak({}: ICetakProps) {
     );
   };
 
+  const renderTab3 = () => {
+    return (
+      <div className={Styles["tab3"]}>
+        <Form
+          form={formTab3}
+          name="form-pendaftaran-tab3"
+          layout={"vertical"}
+          onFinish={onFinishTab3}
+          onFinishFailed={onFinishTab3Failed}
+        >
+          <Form.Item
+            label="Kabupaten / Kota"
+            name="cityId"
+            rules={[
+              {
+                required: true,
+                message: "Tolong masukkan nama Kabupaten / Kota",
+              },
+            ]}
+          >
+            <Select
+              placeholder="Pilih kabupaten atau kota"
+              onChange={onKabupatenChangeStep3}
+              allowClear
+            >
+              {kabupaten.map((item) => (
+                <Option key={item.id + "-" + item.name} value={item.id}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="caborId"
+            label="Cabang Olahraga"
+            rules={[{ required: true, message: "Cabang Olahraga harus diisi" }]}
+          >
+            <Select
+              placeholder="Pilih cabang olahraga"
+              onChange={onCaborChangeStep3}
+              allowClear
+            >
+              {cabor.map((item) => (
+                <Option key={item.id + "-" + item.name} value={item.id}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Cetak
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
+    );
+  };
+
   const TABS = [
     {
       label: "Pendaftaran Tahap 1",
@@ -256,7 +364,170 @@ function Cetak({}: ICetakProps) {
       key: "2",
       children: renderTab2(),
     },
+    {
+      label: "Cetak ID Card",
+      key: "3",
+      children: renderTab3(),
+    },
   ];
+
+  const renderCardPrint = () => {
+    return kandidat.map((candidate, index) => {
+      return (
+        <>
+          <div
+            style={{
+              width: 210,
+              height: 357,
+              backgroundImage: `url(${background})`,
+              backgroundPosition: "center",
+              backgroundSize: "contain",
+              backgroundRepeat: "no-repeat",
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginBottom: index % 8 === 0 && index !== 0 ? 60 : 0,
+            }}
+            key={index}
+          >
+            <div
+              style={{
+                width: 80,
+                height: 80,
+                marginTop: 100,
+              }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: 15,
+                  border: "2px solid dimgray",
+                  backgroundImage: `url(${IMAGE_URL}${candidate.photo})`,
+                  backgroundSize: "contain",
+                }}
+              />
+            </div>
+            <div
+              style={{
+                width: "82%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                marginTop: 15,
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 12,
+                  fontWeight: "600",
+                  color: "#000",
+                  margin: 0,
+                  textAlign: "center",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {candidate.name}
+              </p>
+              <div
+                style={{
+                  width: "80%",
+                  height: 3,
+                  backgroundColor: "#000",
+                  margin: "5px 0px",
+                }}
+              />
+              <p
+                style={{
+                  fontSize: 12,
+                  fontWeight: "600",
+                  color: "#000",
+                  margin: 0,
+                  textAlign: "center",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {candidate.registration?.city?.name}
+              </p>
+            </div>
+            <div
+              style={{
+                width: "82%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                marginTop: 25,
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 15,
+                  fontWeight: "800",
+                  color: "#000",
+                  margin: 0,
+                  textAlign: "center",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {candidate.status.toUpperCase()}
+              </p>
+            </div>
+            <div
+              style={{
+                width: "82%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                marginTop: 12,
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 9,
+                  fontWeight: "800",
+                  color: "#000",
+                  margin: 0,
+                  textAlign: "center",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                Kotawaringin Timur - 19 Juni 2023
+              </p>
+            </div>
+          </div>
+        </>
+      );
+    });
+  };
+
+  const renderPrint = () => {
+    return (
+      <div className={Styles["for-printing"]}>
+        <div
+          ref={componentRef}
+          style={{
+            width: "210mm",
+            display: "flex",
+            justifyContent: "center",
+            flexWrap: "wrap",
+            backgroundColor: "#fff",
+            marginTop: 25,
+          }}
+        >
+          {renderCardPrint()}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className={Styles["wrapper"]}>
@@ -265,6 +536,7 @@ function Cetak({}: ICetakProps) {
         <p className={Styles["title"]}>Cetak Laporan</p>
       </div>
       <Tabs defaultActiveKey="1" centered items={TABS} />
+      {renderPrint()}
     </div>
   );
 }

@@ -62,6 +62,33 @@ export function useKandidat() {
         }
     }
 
+    const getKandidatForIdCard = async (cityId: number, sportId: number) => {
+        setLoading(true);
+        try {
+            const response = await axios({
+                method: 'POST',
+                url: API_URL + '/candidates/idCard',
+                data: {
+                    cityId,
+                    sportId,
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            setLoading(false);
+            kandidatContext.setKandidat(response.data.data);
+            setKandidat(response.data.data);
+            return response.data.data;
+        } catch (error: any) {
+            setLoading(false);
+            kandidatContext.setKandidat([]);
+            setKandidat([]);
+            setErrorMessage(error.response.data.message);
+            throw error.response.data;
+        }
+    };
+
     const getKandidatById = async (id: number) => {
         setLoading(true);
         try {
@@ -207,6 +234,7 @@ export function useKandidat() {
         kandidatDetail,
         errorMessage,
         getKandidat,
+        getKandidatForIdCard,
         getKandidatById,
         createKandidat,
         updateKandidat,
