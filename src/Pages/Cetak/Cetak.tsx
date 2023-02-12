@@ -38,12 +38,26 @@ function Cetak({}: ICetakProps) {
   }, []);
 
   const onFinishTab1 = (values: LooseObject) => {
-    sendFirstStepMail(values.caborId, values.cityId, values.email).then(() => {
-      messageApi.success({
-        content: "Email berhasil dikirim ke " + values.email,
-        duration: 2,
-      });
+    messageApi.loading({
+      key: "loading",
+      content: "Memproses data...",
+      duration: 0,
     });
+    sendFirstStepMail(values.caborId, values.cityId, values.email)
+      .then(() => {
+        messageApi.destroy("loading");
+        messageApi.success({
+          content: "Email berhasil dikirim ke " + values.email,
+          duration: 2,
+        });
+      })
+      .catch(() => {
+        messageApi.destroy("loading");
+        messageApi.error({
+          content: "Email gagal dikirim ke " + values.email,
+          duration: 2,
+        });
+      });
   };
   const onFinishTab1Failed = (values: LooseObject) => {};
 
@@ -60,12 +74,26 @@ function Cetak({}: ICetakProps) {
   };
 
   const onFinishTab2 = (values: LooseObject) => {
-    sendSecondStepMail(values.classId, values.cityId, values.email).then(() => {
-      messageApi.success({
-        content: "Email berhasil dikirim ke " + values.email,
-        duration: 2,
-      });
+    messageApi.loading({
+      key: "loading",
+      content: "Mengirim email...",
+      duration: 0,
     });
+    sendSecondStepMail(values.classId, values.cityId, values.email)
+      .then(() => {
+        messageApi.destroy("loading");
+        messageApi.success({
+          content: "Email berhasil dikirim ke " + values.email,
+          duration: 2,
+        });
+      })
+      .catch(() => {
+        messageApi.destroy("loading");
+        messageApi.error({
+          content: "Email gagal dikirim ke " + values.email,
+          duration: 2,
+        });
+      });
   };
   const onFinishTab2Failed = (values: LooseObject) => {};
 
