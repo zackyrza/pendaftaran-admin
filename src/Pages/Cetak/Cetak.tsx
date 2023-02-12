@@ -428,7 +428,7 @@ function Cetak({}: ICetakProps) {
             >
               <p
                 style={{
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: "600",
                   color: "#000",
                   margin: 0,
@@ -443,14 +443,14 @@ function Cetak({}: ICetakProps) {
               <div
                 style={{
                   width: "80%",
-                  height: 3,
+                  height: 2,
                   backgroundColor: "#000",
-                  margin: "5px 0px",
+                  margin: "2.5px 0px",
                 }}
               />
               <p
                 style={{
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: "600",
                   color: "#000",
                   margin: 0,
@@ -469,12 +469,12 @@ function Cetak({}: ICetakProps) {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                marginTop: 25,
+                marginTop: 30,
               }}
             >
               <p
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: "800",
                   color: "#000",
                   margin: 0,
