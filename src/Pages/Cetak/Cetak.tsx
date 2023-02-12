@@ -91,7 +91,7 @@ function Cetak({}: ICetakProps) {
       content: "Memproses data...",
       duration: 0,
     });
-    getKandidatForIdCard(values.caborId, values.cityId)
+    getKandidatForIdCard(values.cityId, values.caborId)
       .then(() => {
         messageApi.destroy("loading");
         messageApi.success({
