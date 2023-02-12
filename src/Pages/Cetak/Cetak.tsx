@@ -96,9 +96,17 @@ function Cetak({}: ICetakProps) {
         messageApi.destroy("loading");
         messageApi.success({
           content: "Data berhasil dimuat",
-          duration: 2,
+          duration: 1,
         });
-        handlePrint();
+        messageApi.loading({
+          key: "loading2",
+          content: "Memproses file pdf...",
+          duration: 0,
+        });
+        setTimeout(() => {
+          messageApi.destroy("loading2");
+          handlePrint();
+        }, 2500);
       })
       .catch(() => {
         messageApi.destroy("loading");
