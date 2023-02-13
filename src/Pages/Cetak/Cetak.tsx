@@ -424,6 +424,8 @@ function Cetak({}: ICetakProps) {
               flexDirection: "column",
               alignItems: "center",
               marginBottom: index % 8 === 0 && index !== 0 ? 60 : 0,
+              marginLeft: 5,
+              marginRight: 5,
             }}
             key={index}
           >
@@ -557,6 +559,7 @@ function Cetak({}: ICetakProps) {
             flexWrap: "wrap",
             backgroundColor: "#fff",
             marginTop: 25,
+            transform: "scale(-1, 1)",
           }}
         >
           {renderCardPrint()}
