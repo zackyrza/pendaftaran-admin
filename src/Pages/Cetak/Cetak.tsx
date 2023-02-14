@@ -541,7 +541,7 @@ function Cetak({}: ICetakProps) {
                   textOverflow: "ellipsis",
                 }}
               >
-                Kotawaringin Timur
+                Kotawaringin Timur - JUNI 2023
               </p>
             </div>
           </div>
