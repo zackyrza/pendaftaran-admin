@@ -62,9 +62,9 @@ function Pendaftaran({}: IPendaftaranProps) {
     },
     {
       title: "Pendaftar",
-      dataIndex: "user",
-      key: "user",
-      render: (text) => <span>{text?.fullName}</span>,
+      dataIndex: "email",
+      key: "email",
+      render: (text) => <span>{text}</span>,
     },
     {
       title: "Kabupaten / Kota",
