@@ -745,7 +745,6 @@ function Cetak({}: ICetakProps) {
                 <th>STATUS KONTINGEN</th>
                 <th>NIK KTP/KK</th>
                 <th>NO HP</th>
-                <th>PARAF</th>
               </tr>
             </thead>
             <tbody style={{ textAlign: "center" }}>
@@ -822,15 +821,6 @@ function Cetak({}: ICetakProps) {
                     }}
                   >
                     {item.handphone}
-                  </td>
-                  <td
-                    style={{
-                      overflow: "hidden",
-                      wordBreak: "normal",
-                      verticalAlign: "center",
-                    }}
-                  >
-                    &nbsp;
                   </td>
                 </tr>
               ))}
