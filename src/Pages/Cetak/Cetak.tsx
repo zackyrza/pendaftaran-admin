@@ -24,12 +24,20 @@ function Cetak({}: ICetakProps) {
   const [formTab1] = Form.useForm();
   const [formTab2] = Form.useForm();
   const [formTab3] = Form.useForm();
+  const [formTab4] = Form.useForm();
   const { sendFirstStepMail, sendSecondStepMail } = useMail();
   const [messageApi, contextHolder] = message.useMessage();
 
+  const [selectedCity, setSelectedCity] = React.useState("");
+  const [selectedSport, setSelectedSport] = React.useState("");
+
   const componentRef = React.useRef<HTMLDivElement>(null);
+  const rekapRef = React.useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
+  });
+  const handlePrintRekap = useReactToPrint({
+    content: () => rekapRef.current,
   });
 
   React.useEffect(() => {
@@ -156,6 +164,57 @@ function Cetak({}: ICetakProps) {
     formTab3.setFieldsValue({
       caborId: Number(value),
     });
+  };
+
+  const onFinishTab4 = (values: LooseObject) => {
+    messageApi.loading({
+      key: "loading",
+      content: "Memproses data...",
+      duration: 0,
+    });
+    getKandidatForIdCard(values.cityId, values.caborId)
+      .then(() => {
+        messageApi.destroy("loading");
+        messageApi.success({
+          content: "Data berhasil dimuat",
+          duration: 1,
+        });
+        messageApi.loading({
+          key: "loading2",
+          content: "Memproses file pdf...",
+          duration: 0,
+        });
+        setTimeout(() => {
+          messageApi.destroy("loading2");
+          handlePrintRekap();
+        }, 2500);
+      })
+      .catch(() => {
+        messageApi.destroy("loading");
+        messageApi.error({
+          content: "Data gagal dimuat",
+          duration: 2,
+        });
+      });
+  };
+  const onFinishTab4Failed = (values: LooseObject) => {};
+
+  const onKabupatenChangeStep4 = (value: string) => {
+    formTab4.setFieldsValue({
+      cityId: Number(value),
+    });
+    setSelectedCity(
+      kabupaten.find((item) => item.id === Number(value))?.name ?? ""
+    );
+  };
+
+  const onCaborChangeStep4 = (value: string) => {
+    formTab4.setFieldsValue({
+      caborId: Number(value),
+    });
+    setSelectedSport(
+      cabor.find((item) => item.id === Number(value))?.name ?? ""
+    );
   };
 
   const renderTab1 = () => {
@@ -389,6 +448,65 @@ function Cetak({}: ICetakProps) {
     );
   };
 
+  const renderTab4 = () => {
+    return (
+      <div className={Styles["tab4"]}>
+        <Form
+          form={formTab4}
+          name="form-pendaftaran-tab4"
+          layout={"vertical"}
+          onFinish={onFinishTab4}
+          onFinishFailed={onFinishTab4Failed}
+        >
+          <Form.Item
+            label="Kabupaten / Kota"
+            name="cityId"
+            rules={[
+              {
+                required: true,
+                message: "Tolong masukkan nama Kabupaten / Kota",
+              },
+            ]}
+          >
+            <Select
+              placeholder="Pilih kabupaten atau kota"
+              onChange={onKabupatenChangeStep4}
+              allowClear
+            >
+              {kabupaten.map((item) => (
+                <Option key={item.id + "-" + item.name} value={item.id}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="caborId"
+            label="Cabang Olahraga"
+            rules={[{ required: true, message: "Cabang Olahraga harus diisi" }]}
+          >
+            <Select
+              placeholder="Pilih cabang olahraga"
+              onChange={onCaborChangeStep4}
+              allowClear
+            >
+              {cabor.map((item) => (
+                <Option key={item.id + "-" + item.name} value={item.id}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Cetak
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
+    );
+  };
+
   const TABS = [
     {
       label: "Pendaftaran Tahap 1",
@@ -404,6 +522,11 @@ function Cetak({}: ICetakProps) {
       label: "Cetak ID Card",
       key: "3",
       children: renderTab3(),
+    },
+    {
+      label: "Cetak Rekapitulasi",
+      key: "4",
+      children: renderTab4(),
     },
   ];
 
@@ -571,6 +694,153 @@ function Cetak({}: ICetakProps) {
     );
   };
 
+  const renderPrintRekap = () => {
+    return (
+      <div className={Styles["for-printing"]}>
+        <div
+          ref={rekapRef}
+          style={{
+            width: "100%",
+            backgroundColor: "#fff",
+            marginTop: 25,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            alignSelf: "center",
+            alignContent: "center",
+          }}
+        >
+          <p
+            style={{
+              fontSize: 25,
+              fontWeight: 600,
+              margin: 0,
+              marginBottom: 15,
+            }}
+          >
+            REKAPITULASI
+          </p>
+          <p
+            style={{
+              fontSize: 25,
+              fontWeight: 600,
+              margin: 0,
+              marginBottom: 25,
+            }}
+          >
+            {selectedCity.toUpperCase()} - {selectedSport.toUpperCase()}
+          </p>
+          <table
+            border={1}
+            width={"100%"}
+            style={{ borderCollapse: "collapse", borderSpacing: 0 }}
+          >
+            <thead style={{ backgroundColor: "yellow" }}>
+              <tr>
+                <th>NO</th>
+                <th>KONTINGEN KAB/KOTA</th>
+                <th>NAMA</th>
+                <th>CABANG OLAHRAGA</th>
+                <th>NOMOR/EVENT/KELAS</th>
+                <th>STATUS KONTINGEN</th>
+                <th>NIK KTP/KK</th>
+                <th>NO HP</th>
+                <th>PARAF</th>
+              </tr>
+            </thead>
+            <tbody style={{ textAlign: "center" }}>
+              {kandidat.map((item, index) => (
+                <tr style={{ height: 50 }} key={item.id + "-kandidat"}>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      wordBreak: "normal",
+                      verticalAlign: "center",
+                    }}
+                  >
+                    {index + 1}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      wordBreak: "normal",
+                      verticalAlign: "center",
+                    }}
+                  >
+                    {selectedCity}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      wordBreak: "normal",
+                      verticalAlign: "center",
+                    }}
+                  >
+                    {item.name}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      wordBreak: "normal",
+                      verticalAlign: "center",
+                    }}
+                  >
+                    {selectedSport}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      wordBreak: "normal",
+                      verticalAlign: "center",
+                    }}
+                  >
+                    {item.registration?.class?.name}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      wordBreak: "normal",
+                      verticalAlign: "center",
+                    }}
+                  >
+                    {item.status}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      wordBreak: "normal",
+                      verticalAlign: "center",
+                    }}
+                  >
+                    {item.nik}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      wordBreak: "normal",
+                      verticalAlign: "center",
+                    }}
+                  >
+                    {item.handphone}
+                  </td>
+                  <td
+                    style={{
+                      overflow: "hidden",
+                      wordBreak: "normal",
+                      verticalAlign: "center",
+                    }}
+                  >
+                    &nbsp;
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={Styles["wrapper"]}>
       {contextHolder}
@@ -579,6 +849,7 @@ function Cetak({}: ICetakProps) {
       </div>
       <Tabs defaultActiveKey="1" centered items={TABS} />
       {renderPrint()}
+      {renderPrintRekap()}
     </div>
   );
 }
