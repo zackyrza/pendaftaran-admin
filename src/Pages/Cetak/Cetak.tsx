@@ -442,7 +442,9 @@ function Cetak({}: ICetakProps) {
                   height: "100%",
                   borderRadius: 15,
                   border: "2px solid dimgray",
-                  backgroundImage: `url(${IMAGE_URL}${candidate.photo})`,
+                  backgroundImage: `url(${IMAGE_URL}${encodeURIComponent(
+                    candidate.photo.trim()
+                  )})`,
                   backgroundSize: "contain",
                 }}
               />
