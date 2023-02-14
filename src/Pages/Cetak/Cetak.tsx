@@ -445,7 +445,8 @@ function Cetak({}: ICetakProps) {
                   backgroundImage: `url(${IMAGE_URL}${encodeURIComponent(
                     candidate.photo.trim()
                   )})`,
-                  backgroundSize: "contain",
+                  backgroundSize: "cover",
+                  backgroundRepeat: "no-repeat",
                 }}
               />
             </div>
