@@ -27,12 +27,18 @@ function Cetak({}: ICetakProps) {
   const [formTab2] = Form.useForm();
   const [formTab3] = Form.useForm();
   const [formTab4] = Form.useForm();
-  const { sendFirstStepMail, generateSecondStepMail } = useMail();
+  const {
+    sendFirstStepMail,
+    sendSecondStepMail,
+    generateSecondStepMail,
+    uploadPdf,
+    sendEmail,
+  } = useMail();
   const [messageApi, contextHolder] = message.useMessage();
 
   const [selectedCity, setSelectedCity] = React.useState("");
   const [selectedSport, setSelectedSport] = React.useState("");
-  const [currentData, setCurrentData] = React.useState([]);
+  const [currentData, setCurrentData] = React.useState<LooseObject[]>([]);
 
   const componentRef = React.useRef<HTMLDivElement>(null);
   const rekapRef = React.useRef<HTMLDivElement>(null);
@@ -113,7 +119,7 @@ function Cetak({}: ICetakProps) {
     });
   };
 
-  const handleSavePdf = async () => {
+  const handleSavePdf = async (values: LooseObject) => {
     const element = step2Ref.current;
     if (!element) return;
     const canvas = await html2canvas(element);
@@ -150,43 +156,107 @@ function Cetak({}: ICetakProps) {
       doc.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
     }
-    doc.save("file.pdf");
+    const pdfBlob = doc.output("blob");
+    onUpload(pdfBlob || new Blob(), values);
+  };
+
+  const onUpload = (file: Blob, values: LooseObject) => {
+    const newFile = new File([file], "file.pdf", { type: "application/pdf" });
+    const formData = new FormData();
+    formData.append("file", newFile);
+    uploadPdf(formData)
+      .then((res) => {
+        messageApi.destroy("loading-upload");
+        messageApi.success({
+          content: "File pdf berhasil di upload",
+          duration: 2,
+        });
+        messageApi.loading({
+          key: "loading-send",
+          content: "Mengirimkan file pdf ke email...",
+          duration: 0,
+        });
+        sendEmail(
+          currentData?.[0]?.main?.city,
+          currentData?.[0]?.main?.sport,
+          currentData?.[0]?.main?.className,
+          values.email,
+          res
+        )
+          .then((res) => {
+            messageApi.destroy("loading-send");
+            messageApi.success({
+              content: "Email berhasil dikirim ke " + values.email,
+              duration: 2,
+            });
+          })
+          .catch((err) => {
+            messageApi.destroy("loading-send");
+            messageApi.error({
+              content: "Email gagal dikirim ke " + values.email,
+              duration: 2,
+            });
+          });
+      })
+      .catch((err) => {
+        messageApi.destroy("loading-upload");
+        messageApi.error({
+          content: "File pdf gagal di upload",
+          duration: 2,
+        });
+      });
   };
 
   const onFinishTab2 = (values: LooseObject) => {
+    // messageApi.loading({
+    //   key: "loading",
+    //   content: "Memproses file pdf...",
+    //   duration: 0,
+    // });
+    // generateSecondStepMail(values.classId, values.cityId, values.email)
+    //   .then((res) => {
+    //     setCurrentData(res);
+
+    //     setTimeout(async () => {
+    //       handleSavePdf(values);
+    //       messageApi.destroy("loading");
+    //       messageApi.success({
+    //         content: "File pdf berhasil di buat",
+    //         duration: 2,
+    //       });
+    //       messageApi.loading({
+    //         key: "loading-upload",
+    //         content: "Mengupload file pdf untuk dikirim ke email...",
+    //         duration: 0,
+    //       });
+    //       // onUpload(pdfBlob || new Blob(), values);
+    //       // handlePrintStep2();
+    //     }, 1000);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err, "==============================");
+    //     messageApi.destroy("loading");
+    //     messageApi.destroy("loading-upload");
+    //     messageApi.error({
+    //       content: "Email gagal dikirim ke " + values.email,
+    //       duration: 2,
+    //     });
+    //   });
     messageApi.loading({
       key: "loading",
-      content: "Memproses file pdf...",
+      content: "Mengirim email...",
       duration: 0,
     });
-    generateSecondStepMail(values.classId, values.cityId, values.email)
-      .then((res) => {
-        setCurrentData(res);
-
-        setTimeout(() => {
-          handleSavePdf();
-          messageApi.destroy("loading");
-          messageApi.success({
-            content: "File pdf berhasil di buat",
-            duration: 2,
-          });
-          messageApi.loading({
-            key: "loading-upload",
-            content: "Mengupload file pdf untuk dikirim ke email...",
-            duration: 0,
-          });
-          messageApi.destroy("loading-upload");
-          // handlePrintStep2();
-        }, 1000);
-        // messageApi.success({
-        //   content: "Email berhasil dikirim ke " + values.email,
-        //   duration: 2,
-        // });
-      })
-      .catch((err) => {
-        console.log(err, "==============================");
+    sendSecondStepMail(values.classId, values.cityId, values.email)
+      .then(() => {
         messageApi.destroy("loading");
-        messageApi.destroy("loading-upload");
+        messageApi.success({
+          content: "Email berhasil dikirim ke " + values.email,
+          duration: 2,
+        });
+      })
+      .catch(() => {
+        messageApi.destroy("loading");
         messageApi.error({
           content: "Email gagal dikirim ke " + values.email,
           duration: 2,
